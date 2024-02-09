@@ -10,7 +10,6 @@ import streamlit as st
 file_path = 'train.csv'
 df = pd.read_csv(file_path)
 
-# Step 2: Preprocess the data
 categorical_cols = ['Occupation', 'Credit_Mix']
 numeric_cols = [col for col in df.columns if col not in categorical_cols + ['Name', 'Credit_Score']]
 
@@ -25,20 +24,17 @@ y = df['Credit_Score']
 
 X_encoded = preprocessor.fit_transform(X)
 
-# Step 3: Build the decision tree model
 X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
 
 tree_model = DecisionTreeClassifier()
 tree_model.fit(X_train, y_train)
-
-# Step 4: Save the trained model using joblib
+accuracy = tree_model.score(X_test, y_test)
+# print(f"Accuracy: {accuracy}")
+# # Step 4: Save the trained model using joblib
 dump(tree_model, 'decision_tree_model.joblib')
 dump(preprocessor, 'preprocessor.joblib')
-
-# Step 5: Create a Streamlit app
 st.title("Credit Score Prediction")
 
-# Input fields
 
 name = st.text_input("Name:")
 age = st.number_input("Age:")
@@ -55,7 +51,7 @@ credit_mix = st.selectbox("Credit Mix:", df['Credit_Mix'].unique())
 credit_history_age = st.number_input("Credit History Age:")
 monthly_balance = st.number_input("Monthly Balance:")
 
-# Predict button
+
 if st.button("Predict Credit Score"):
     # Prepare input data
     input_data = pd.DataFrame({
@@ -75,11 +71,11 @@ if st.button("Predict Credit Score"):
         'Monthly_Balance': [monthly_balance]
     })
 
-    # Preprocess input data
+   
     input_encoded = preprocessor.transform(input_data)
 
-    # Make prediction
+  
     prediction = tree_model.predict(input_encoded)
 
-    # Output prediction
+   
     st.success(f"The predicted Credit Score for {name} is: {prediction[0]}")
